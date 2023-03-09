@@ -33,7 +33,7 @@ def ORB_descriptor():
     plt.imshow(img3)
     plt.show()
 
-# ORB_descriptor()
+ORB_descriptor()
 
 def SIFT_descriptor():
     img1 = cv2.imread('D:/Diploma thesis/Maps/UPJS/Dvere/door1.png', cv2.IMREAD_GRAYSCALE)  # queryImage
@@ -185,7 +185,7 @@ def generalized_hough():
     guil = ght.detect(template)
 
 
-    positions, votes = houghTransformer.detect(template)
+    # positions, votes = houghTransformer.detect(template)
 
     listOfPosition = positions[0]
 
@@ -202,4 +202,4 @@ def generalized_hough():
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
-generalized_hough()
+# generalized_hough()
