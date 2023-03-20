@@ -2,21 +2,38 @@ import cv2
 import numpy as np
 
 def image_preprocess(gray_img):
-    ret, thresh = cv2.threshold(gray_img, 0, 255, cv2.THRESH_BINARY+cv2.THRESH_OTSU)
 
-    cv2.imshow('removed', thresh)
-    cv2.waitKey(0)
-
+    (thresh, im_bw) = cv2.threshold(gray_img, 128, 255, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
     thresh = 127
     im_bw = cv2.threshold(gray_img, thresh, 255, cv2.THRESH_BINARY)[1]
 
-    cv2.imshow('removed', im_bw)
+
+    kernel = np.ones((5, 5), np.uint8)
+    dilation = cv2.dilate(gray_img, kernel)
+    erosion = cv2.erode(gray_img, kernel, iterations=6)
+
+    # cv2.imshow("img2", img2)
+    cv2.imshow("Dilation", dilation)
+    cv2.imwrite("Dilation.jpg", dilation)
+
+    # (thresh, im_bw) = cv2.threshold(dilation, 128, 200, cv2.THRESH_BINARY | cv2.THRESH_OTSU)
+    # thresh = 127
+    # im_bw = cv2.threshold(dilation, thresh, 255, cv2.THRESH_BINARY)[1]
+
+
+    # Press any key to close the image
     cv2.waitKey(0)
+
+    # Clean up
+    cv2.destroyAllWindows()
+
+    return dilation
+
 
 
 
 def find_rooms(img, noise_removal_threshold=25, corners_threshold=0.1,
-               room_closing_max_length=50, gap_in_wall_threshold=500):
+               room_closing_max_length=50, gap_in_wall_threshold=250):
     """
 
     :param img: grey scale image of rooms, already eroded and doors removed etc.
@@ -96,24 +113,52 @@ def find_rooms(img, noise_removal_threshold=25, corners_threshold=0.1,
         img[component] = color
 
     # print(rooms)
+
+
+
+
     return rooms, img
 
+def cropped_house(img):
+    height, width = img.shape[:2]
+    rooms, colored_house = find_rooms(img.copy())
+    roomId = 0
+    images = []
+    for room in rooms:
+        x = 0
+        image = np.zeros((height, width, 3), np.uint8)
+        image[np.where((image == [0, 0, 0]).all(axis=2))] = [0, 33, 166]
+        roomId = roomId + 1
+        for raw in room:
+            y = 0
+            for value in raw:
+                if value == True:
+                    image[x, y] = img[x, y]
+
+                y = y + 1
+                # print (value)
+                # print (img[x,y])
+            x = x + 1
+        cv2.imwrite('room crop/result' + str(roomId) + '.jpg', image)
 
 
 #Read gray image
-img = cv2.imread("D:/Diploma thesis/Maps/UPJS/IIa_AP3601_separated.png")
+# img = cv2.imread("D:/Diploma thesis/Maps/Competition maps/Nantes/Atlantis_Light_R0.jpg")
+img = cv2.imread("D:/Diploma thesis/Maps/UPJS/F1_scaled_separated.png")
 img = cv2.resize(img, (650, int(650 * img.shape[0] / img.shape[1])))
-cv2.imshow('input', img)
-cv2.waitKey(0)
-
 img = cv2.cvtColor(img, cv2.COLOR_BGR2GRAY)
-cv2.imshow('gray', img)
-cv2.waitKey(0)
-image_preprocess(img)
+img_processed = image_preprocess(img)
 
-# rooms, colored_house = find_rooms(img.copy())
-#
-# cv2.imwrite('D:/Diploma thesis/Maps/UPJS/Room_detection_results/50&500.jpg', colored_house)
-# cv2.imshow('result', colored_house)
-# cv2.waitKey()
-# cv2.destroyAllWindows()
+rooms, colored_house = find_rooms(img_processed.copy())
+
+cropped_house(img_processed)
+
+cv2.imwrite('D:/Diploma thesis/Maps/UPJS/Results/2_20&500&1200x1200.jpg', colored_house)
+cv2.imshow('result', colored_house)
+cv2.waitKey(0)
+cv2.destroyAllWindows()
+
+
+
+
+

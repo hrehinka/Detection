@@ -22,6 +22,7 @@ for i in range(0, 170):
 def listdir_fullpath(d):
     return [os.path.join(d, f) for f in os.listdir(d)]
 
+
 # convert dataframe into required list format
 def create_final_list_of_walls(df):
     list_of_lines = []
@@ -61,14 +62,13 @@ def LSD(image, lsd):
         y0 = int(round(dline[0][1]))
         x1 = int(round(dline[0][2]))
         y1 = int(round(dline[0][3]))
-        cv2.line(img, (x0, y0), (x1, y1), (90, 206, 242), 2, cv2.LINE_AA)
+        cv2.line(img, (x0, y0), (x1, y1), (118,238,0), 2, cv2.LINE_AA)
 
     cv2.imshow('lsd inak', img)
     cv2.waitKey(0)
 
-    # cv2.imwrite('D:/Diploma thesis/Maps/UPJS/LSDresult/01.jpg',drawn_img)
+    cv2.imwrite('D:/Diploma thesis/Maps/Competition maps/Nantes/Results/Atlantis_Light_R0_BLACK_LSD.png', img)
     return lsdresult
-
 
 
 def LSD_lines_info(image_black, lsdresults, lsdresult, lsd):
@@ -125,9 +125,9 @@ def LSD_computing_info_points(lsdresults, image, df_lines, empty):
 
             # cv2.imwrite('D:/Diploma thesis/Maps/UPJS/POINTS/body.jpg', empty)
 
-        cv2.imwrite('D:/Diploma thesis/Maps/UPJS/body.jpg', empty)
         cv2.imshow('body', empty)
         cv2.waitKey(0)
+        cv2.imwrite('D:/Diploma thesis/Maps/Competition maps/Nantes/Results/Atlantis_Light_R0_BODY.png', empty)
 
     return df_lines, df_final
 
@@ -333,7 +333,7 @@ def mean_shift(lsd_lines, points, blank_picture, img):
     # clustering = MeanShift(bandwidth=19)
     #  17
     #  iba pre lsd mam 10
-    clustering = MeanShift(bandwidth=19)
+    clustering = MeanShift(bandwidth=8)
     clustering.fit(points)
     labels = clustering.labels_
     cluster_centers = clustering.cluster_centers_
@@ -506,9 +506,9 @@ def mean_shift(lsd_lines, points, blank_picture, img):
         thickness = 2
         img = cv2.line(img, start_point, end_point, color, thickness)
 
-    cv2.imwrite('D:/Diploma thesis/Maps/UPJS/LSDresult/lines.jpg', img)
     cv2.imshow('results', img)
     cv2.waitKey(0)
+    cv2.imwrite('D:/Diploma thesis/Maps/Competition maps/Nantes/Results/Atlantis_Light_R0_MEANSHIFT_8.png', img)
 
     return df_final
 
@@ -538,8 +538,6 @@ def hough_lines_simpler(image):
     grey = cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
     edges = cv2.Canny(grey, 150, 250, apertureSize=3)
 
-
-
     lines_list = []
     lines = cv2.HoughLinesP(edges, 1, np.pi / 180, threshold=70, minLineLength=5, maxLineGap=30)
     #
@@ -564,18 +562,21 @@ def hough_lines_simpler(image):
 # https://stackoverflow.com/questions/28327020/opencv-detect-mouse-position-clicking-over-a-picture
 clicked = []
 
+
 def on_mouse(event, x, y, flags, param):
     global clicked
     if event == cv2.EVENT_LBUTTONDOWN:
         clicked.append((x, y))
 
+
 # get clicked points
 def get_zone_points():
-    img = cv2.imread('D:/Diploma thesis/Maps/UPJS/LSDresult/lines.jpg')
+    img = cv2.imread('D:/Diploma thesis/Maps/Competition maps/Nantes/Results/Atlantis_Light_R0_MEANSHIFT_8.png')
     cv2.imshow('Get zones points', img)
     cv2.setMouseCallback('Get zones points', on_mouse)
     cv2.waitKey(0)
     return clicked
+
 
 # find zones(rooms) from clicked points and detected walls
 def perform_operation(list_of_zone_points, list_of_wall_lines, dictionary_of_zones):
@@ -589,7 +590,6 @@ def perform_operation(list_of_zone_points, list_of_wall_lines, dictionary_of_zon
         #     dictionary_of_zones[tuple_point] = zone
 
         dictionary_of_zones[tuple_point].extend(zone)
-
 
     return dictionary_of_zones
 
@@ -762,10 +762,10 @@ def get_y(line, zone_point_x):
 # list_of_color_paths = listdir_fullpath('D:/Diploma thesis/Maps/UPJS/')
 
 # load and resize image
-img = cv2.imread('D:/Diploma thesis/Maps/UPJS/IIa_AP3601_separated_1.png')
-img = cv2.resize(img, (650, int(650 * img.shape[0] / img.shape[1])))
+img = cv2.imread('D:/Diploma thesis/Maps/Competition maps/Nantes/Atlantis_Light_R0.jpg')
+# img = cv2.resize(img, (650, int(650 * img.shape[0] / img.shape[1])))
+img = cv2.resize(img, (450, int(450 * img.shape[0] / img.shape[1])))
 hough_lines = hough_lines_simpler(img)
-
 
 # initialise LSD
 lsd = cv2.createLineSegmentDetector(0)
@@ -781,8 +781,7 @@ lsdresult = LSD(img, lsd)
 list_of_empty_paths = listdir_fullpath('D:/Diploma thesis/Maps/Found lines/LSD/CVC-FP/')
 
 # load detected black image + create result list
-image_black = cv2.imread('D:/Diploma thesis/Maps/UPJS/LSDresult/01.jpg')
-
+image_black = cv2.imread('D:/Diploma thesis/Maps/Competition maps/Nantes/Results/Atlantis_Light_R0_BLACK_LSD.png')
 
 # for i in range(0, len(list_of_empty_paths)):
 # image_black = cv2.imread(list_of_empty_paths[i])
