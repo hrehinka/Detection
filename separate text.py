@@ -65,9 +65,8 @@ def inpaint_text(img_path, pipeline):
 # weights for the detector and recognizer.
 pipeline = keras_ocr.pipeline.Pipeline()
 
-img_text_removed = inpaint_text('D:/Diploma thesis/Dataset/CVC-FP/Images/IIa_AP3401.png', pipeline)
+img_text_removed = inpaint_text('D:/Diploma thesis/Maps/UPJS/IIa_BA0710.png', pipeline)
 
 plt.imshow(img_text_removed)
 
-cv2.imwrite('D:/Diploma thesis/Dataset/CVC-FP/Images/IIa_AP3401_separ.png', cv2.cvtColor(img_text_removed, cv2.COLOR_BGR2RGB))
-
+cv2.imwrite('D:/Diploma thesis/Maps/UPJS/IIa_BA0710_separ.png', cv2.cvtColor(img_text_removed, cv2.COLOR_BGR2RGB))
